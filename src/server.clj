@@ -1,6 +1,9 @@
-(ns server)
+(ns server
+  (:import [java.net ServerSocket]))
+
 
 (defn main []
-  (println "Hello world"))
+  (let [socket (ServerSocket. 6789 2)]
+    (.accept socket)))
 
 (main)
