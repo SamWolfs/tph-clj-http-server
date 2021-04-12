@@ -4,14 +4,14 @@
   (:import [java.net ServerSocket]))
 
 (defn handle-get
-  ([] [:ERROR "expected 2 arguments to GET"])
+  ([] [:ERROR "expected 1 argument to GET"])
   ([_] (handle-get))
   ([env word & _] (if (contains? @env word)
                     [:ANSWER (get @env word)]
                     [:ERROR (str "can't find " word)])))
 
 (defn handle-set
-  ([] [:ERROR "expected at least 3 arguments"])
+  ([] [:ERROR "expected at least 2 arguments to SET"])
   ([_] (handle-set))
   ([_ _] (handle-set))
   ([env word & definition] [:OK (let [word-def (str/join " " definition)]
@@ -24,7 +24,7 @@
       "SET" (apply handle-set env args)
       "ALL" [:ANSWER @env]
       "CLEAR" [:OK (reset! env {})]
-      "Unknown command")))
+      [:ERROR "Unknown Command"])))
 
 (defn client-send [socket msg]
   (let [client (io/writer socket)]
