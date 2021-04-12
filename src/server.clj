@@ -14,17 +14,16 @@
   ([] [:ERROR "expected at least 3 arguments"])
   ([_] (handle-set))
   ([_ _] (handle-set))
-  ([env word & definition] [:ANSWER (reset! env (assoc @env word (str/join " " definition)))]))
+  ([env word & definition] [:OK (let [word-def (str/join " " definition)]
+                                  (swap! env assoc word word-def))]))
 
 (defn handle [msg env]
-  (let [parts (str/split msg #" ")
-        command (first parts)
-        args (rest parts)]
+  (let [[command & args] (str/split msg #" ")]
     (case command
       "GET" (apply handle-get env args)
       "SET" (apply handle-set env args)
       "ALL" [:ANSWER @env]
-      "CLEAR"[:OK (reset! env {})]
+      "CLEAR" [:OK (reset! env {})]
       "Unknown command")))
 
 (defn client-send [socket msg]
