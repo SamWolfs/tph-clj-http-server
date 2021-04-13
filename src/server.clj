@@ -36,14 +36,15 @@
     (.readLine client)))
 
 (defn main [port]
-  (let [env (atom {"lisp" "LISt Processor"})]
-    (with-open [server-socket (ServerSocket. port 1)
-                socket (.accept server-socket)]
-      (client-send socket "Welcome!\n")
-      (loop []
-        (let [msg (client-receive socket)
-              reply (handle msg env)]
-          (client-send socket (str reply "\n")))
-        (recur)))))
+  (let [env (atom {"lisp" "LISt Processor"})
+        running (atom true)]
+    (with-open [server-socket (ServerSocket. port)]
+      (while @running
+        (let [s (.accept server-socket)]
+          (future (let [msg (client-receive s)
+                        reply (handle msg env)]
+                    (client-send s (str reply "\n"))
+                    (.close s))))))
+    running))
 
-(main 9999)
+(def my-server (main 9999))
